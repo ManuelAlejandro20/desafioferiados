@@ -1,3 +1,7 @@
 html body{
 	background-color: #ECECEC
 }
+
+.container{
+	padding-top: 25px;
+}

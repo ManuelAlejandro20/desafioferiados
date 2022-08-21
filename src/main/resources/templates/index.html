@@ -4,6 +4,75 @@
 </head>    
 <body>
     <header th:replace="fragments/header :: header"></header>
-	<h1>Hello world</h1>
+    <div class="container">
+		<form class="row gx-3 gy-2 align-items-center">
+		  <div class="col-sm-3">
+		    <select th:onchange="feriados()"
+		    		class="form-select" id="anioSelect" name="anio">
+				<option value="" selected>Selecciona un año</option>
+				<option value="2022">2022</option>
+				<option value="2023">2023</option>
+				<option value="2024">2024</option>
+				<option value="2025">2025</option>
+				<option value="2026">2026</option>
+				<option value="2027">2027</option>
+				<option value="2028">2028</option>
+				<option value="2029">2029</option>
+				<option value="2030">2030</option>		
+		    </select>
+		  </div>
+		  <div class="col-auto">
+		    <button type="button" id="verFeriadosButton" disabled class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modal">Ver días feriados</button>
+		  </div>
+		  <div class="col-auto">
+		    <button type="submit" class="btn btn-secondary disabled">Calcular días hábiles</button>
+		  </div>		  
+		</form>
+    </div>    
+    
+	<div class="modal fade" id="modal" tabindex="-1" aria-hidden="true">
+	  <div class="modal-dialog modal-lg">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title" id="modalTitle"></h5>
+	        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+	      </div>
+	      <div class="modal-body">
+			  <div class="row">
+			    <div class="col-md-4">
+				<ul class="list-group">
+				  <li class="list-group-item">An item</li>
+				  <li class="list-group-item">A second item</li>
+				  <li class="list-group-item">A third item</li>
+				  <li class="list-group-item">A fourth item</li>
+				  <li class="list-group-item">And a fifth one</li>
+				</ul>				    			    
+			    </div>
+			    <div class="col-md-4 ms-auto">
+			    <h2 id="modalText"></h2>
+			    </div>
+			  </div>	      
+<!-- 			<div class="row justify-content-evenly"> -->
+<!-- 			  <div class="col-4"> -->
+<!-- 				<ul class="list-group"> -->
+<!-- 				  <li class="list-group-item">An item</li> -->
+<!-- 				  <li class="list-group-item">A second item</li> -->
+<!-- 				  <li class="list-group-item">A third item</li> -->
+<!-- 				  <li class="list-group-item">A fourth item</li> -->
+<!-- 				  <li class="list-group-item">And a fifth one</li> -->
+<!-- 				</ul>			    -->
+<!-- 			  </div> -->
+<!-- 			  <div class="col-4"> -->
+<!-- 			    <h2 id="modalText"></h2>	 -->
+<!-- 			  </div> -->
+<!-- 			</div>	      	      	        -->
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>    
+    
 </body>
 </html>
