@@ -22,13 +22,18 @@
  *
  */
 package com.bi.desafioferiados;
-import javax.servlet.http.HttpServletRequest;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -39,8 +44,51 @@ import org.springframework.web.bind.annotation.RestController;
 public class MainController {
         
     @GetMapping("/feriados")
-    public String feriados(@RequestParam String anio) {
-    	return "Este es el anio escogido " + anio;
+    public ArrayList<String> feriados(@RequestParam String anio) {
+    	return getFeriados(Integer.parseInt(anio));
     }        
     
+    private ArrayList<String> getFeriados(int anio) {    	
+    	LocalDate fechaInicio = LocalDate.of(anio, 1, 1);
+    	LocalDate fechaFinal = LocalDate.of(anio, 12, 31);
+    	int rand = numRandom();    	
+    	ArrayList<String> listaFeriados = new ArrayList<String>();
+    	String feriado = "";
+    	for(int i = 0; i < rand; i++) {
+    		while(true) {
+    			feriado = randomDate(fechaInicio, fechaFinal);
+    			if(!listaFeriados.contains(feriado)) {
+    				listaFeriados.add(feriado);
+    				break;
+    			}
+    		}    		
+    	}
+    	return listaFeriados;
+    }
+    
+    private String randomDate(LocalDate fechaInicio, LocalDate fechaFinal) {    	
+    	long dias = fechaInicio.until(fechaFinal, ChronoUnit.DAYS);
+    	long diasRandom = ThreadLocalRandom.current().nextLong(dias + 1);
+    	LocalDate randomDate = fechaInicio.plusDays(diasRandom);
+    	return randomDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+    }
+    
+    private int numRandom() {
+    	Random rand = new Random();
+    	int min = 5;
+    	int max = 16;
+    	return rand.nextInt((max - min) + 1) + min;    	    	
+    }
+    
+//    private void diaSemana() {
+//    	Calendar c = Calendar.getInstance(); 
+//    	try {
+//    		c.setTime(new SimpleDateFormat("dd/MM/yyyy").parse("20/08/2022"));    	
+//    	}catch(ParseException e) {
+//    		c.setTime(new Date());
+//    	}    	
+//    	int dayOfWeek = c.get(Calendar.DAY_OF_WEEK);
+//    	System.out.println(dayOfWeek);
+//    }
+//    
 }

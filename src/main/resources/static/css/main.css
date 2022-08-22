@@ -5,3 +5,8 @@ html body{
 .container{
 	padding-top: 25px;
 }
+
+.datepicker table tr td.today {
+    color: #FFF;
+    background-color: #EB2828 !important;
+}
