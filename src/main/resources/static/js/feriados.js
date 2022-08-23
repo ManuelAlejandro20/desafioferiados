@@ -1,3 +1,5 @@
+//Función que se activa cada vez que se escoge un año. Si se escoge un año permitido se muestra el panel de lo contrario se oculta
+//Se hace un llamado al servicio rest para obtener los datos del año y configurar el calendario junto con los textos correspondientes
 function feriados() {
 	const anio = $("#anioSelect").val();
 	$('#datepicker-div').datepicker('destroy');
@@ -6,7 +8,7 @@ function feriados() {
 		$("#panelContainer").hide();
 		return;
 	}		
-	var ul = $('#listaFeriados')[0];	
+	var ul = $('#listaFeriados');	
 	$("#panelContainer").show();
 	$("#buttonPanel").text('Días feriados y hábiles de ' + anio);	
 	$.ajax({
@@ -15,10 +17,11 @@ function feriados() {
 		type: "GET",
 		success: function (data) {
 			const feriados = data.feriados;
+			const dias = data.dias;
 			const feriadosEnSemana = data.feriadosEnSemana;
 			const diasLaborales = data.diasLaborales;
 			for(var i = 0; i < feriados.length; i++){
-  				addRows(ul, feriados[i]);
+  				ul.append("<li class='list-group-item'>" + feriados[i] + " (" + dias[i] + ")" + "</li>");
   			}
 			$('#datepicker-div').datepicker({      
 				format: "dd/mm/yyyy",
@@ -32,13 +35,10 @@ function feriados() {
 			  			const dateSplit = feriados[i].split("/");
 			  			const dia = parseInt(dateSplit[0]);
 			  			const mes = parseInt(dateSplit[1]) - 1;
-			  			const anioSplit = parseInt(dateSplit[2]);			  			
+			  			const anioSplit = parseInt(dateSplit[2]);			  			  	
 			          	if (date.getDate() == dia && date.getMonth() == mes && date.getFullYear() == anioSplit){
 							return { classes: 'today' };					
-						}  
-						if(date.getDay() == 6 || date.getDay() == 0){
-							return false;
-						}        	
+						}  						    						
 			  		}			
 		        }
 			});		
@@ -48,11 +48,4 @@ function feriados() {
 		}
 	});	
 		
-}
-
-function addRows(ul, feriado){
-	var li = document.createElement("li");
-	li.appendChild(document.createTextNode(feriado));
-    li.setAttribute("class", "list-group-item"); 
-    ul.appendChild(li);		
 }

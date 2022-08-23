@@ -1,37 +1,10 @@
-/*
- * Copyright (c) 2021 CMCORP
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- * An intermediate form of license used by the X Consortium for X11 used the following wording:[16]
- *
- */
 package com.bi.desafioferiados;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -45,56 +18,74 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bi.desafioferiados.model.Anio;
 
 /**
- * Main controller
+ * Controlador principal
  */
 @RestController
 public class MainController {
         
+	/**
+	 * Servicio Rest que retorna el objeto año con todos sus atributos
+	 * @param anio 
+	 * @return objeto año
+	 */
     @GetMapping("/feriados")
     public Anio feriados(@RequestParam String anio) {
     	Anio year = new Anio();
     	LocalDate fechaInicio = LocalDate.of(Integer.parseInt(anio), 1, 1);
     	LocalDate fechaFinal = LocalDate.of(Integer.parseInt(anio), 12, 31);    	
-    	ArrayList<String> feriados = getFeriados(fechaInicio, fechaFinal); 
-//    	List<String> a = Arrays.asList(
-//    	                                            "09/08/2022", 
-//    	                                            "07/05/2022", 
-//    	                                            "30/03/2022", 
-//    	                                            "02/03/2022", 
-//    	                                            "10/02/2022"
-//    	                                          ); 
-//    	ArrayList<String> feriados = new ArrayList<String>(a);
+    	ArrayList<LocalDate> feriados = getFeriados(fechaInicio, fechaFinal);    
     	int feriadosDiaSemana = feriadosDiaSemana(feriados);
     	int diasLaboralesSinFinde = diasLaboralesSinFinde(fechaInicio, fechaFinal);
-    	year.setFeriados(feriados);
+    	year.setFeriados(feriadosString(feriados));
+    	year.setDias(getDias(feriados));
     	year.setFeriadosEnSemana(feriadosDiaSemana);
     	year.setDiasLaborales(diasLaboralesSinFinde - feriadosDiaSemana);
     	return year;
     }        
     
-    private ArrayList<String> getFeriados(LocalDate fechaInicio, LocalDate fechaFinal) {    	
+    /**
+     * Función que agrega una cantidad aleatoria de fechas a un array (estas serán los feriados). 
+     * No se admiten repeticiones al final se ordenan las fechas de menor a mayor
+     * @param fechaInicio. Fecha inicial del rango
+     * @param fechaFinal. Fecha final del rango
+     * @return un array de LocalDate que contiene todos los feriados
+     */
+    private ArrayList<LocalDate> getFeriados(LocalDate fechaInicio, LocalDate fechaFinal) {    	
     	int rand = numRandom();    	
-    	ArrayList<String> listaFeriados = new ArrayList<String>();
-    	String feriado = "";
+    	ArrayList<LocalDate> listaFeriados = new ArrayList<LocalDate>();
+    	LocalDate feriado;
+    	    	    	
     	for(int i = 0; i < rand; i++) {
     		while(true) {
     			feriado = randomDate(fechaInicio, fechaFinal);
-    			if(!listaFeriados.contains(feriado)) {
+    			if(!listaFeriados.stream().anyMatch(feriado::equals)) {
     				listaFeriados.add(feriado);
     				break;
     			}
     		}    		
     	}
+    	Collections.sort(listaFeriados);
     	return listaFeriados;
     }
     
-    private String randomDate(LocalDate fechaInicio, LocalDate fechaFinal) {    	
+    /**
+     * Función que devuelve una fecha aleatoria dada una fecha inicial
+     * y una fecha final. La fecha final se convierte a long y despues se le suma
+     * 1 para que el rango no excluya esta fecha
+     * @param fechaInicio. Fecha inicial del rango
+     * @param fechaFinal. Fecha final del rango
+     * @return Una fecha aleatoria
+     */
+    private LocalDate randomDate(LocalDate fechaInicio, LocalDate fechaFinal) {    	
     	long dias = fechaInicio.until(fechaFinal, ChronoUnit.DAYS);
     	long diasRandom = ThreadLocalRandom.current().nextLong(dias + 1);
-    	LocalDate randomDate = fechaInicio.plusDays(diasRandom);
-    	return randomDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+    	return fechaInicio.plusDays(diasRandom);
     }
     
+    /**
+     * Función que genera un número aleatorio entre 5 y 16, incluyendo 16.
+     * @return un número aleatorio
+     */
     private int numRandom() {
     	Random rand = new Random();
     	int min = 5;
@@ -102,15 +93,29 @@ public class MainController {
     	return rand.nextInt((max - min) + 1) + min;    	    	
     }
     
-    private int feriadosDiaSemana(ArrayList<String> feriados) {
+    /**
+     * Convierte un array de Localdate en un array de String. 
+     * @param feriados. Array que contiene los feriados en formato Localdate
+     * @return un array que contiene los feriados en formato String
+     */
+    private ArrayList<String> feriadosString(ArrayList<LocalDate> feriados){
+    	ArrayList<String> feriadosString = new ArrayList<String>();
+    	for(LocalDate l : feriados) {
+    		feriadosString.add(l.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+    	}
+    	return feriadosString;
+    }
+     
+    /**
+     * Calcula cuantos feriados del array son día de semana
+     * @param feriados. Array de feriados.
+     * @return la cantidad de feriados que caen en día de semana
+     */
+    private int feriadosDiaSemana(ArrayList<LocalDate> feriados) {
     	int feriadosDiaSemana = 0;
     	int numeroDia;
-    	String[] fecha;
-    	LocalDate fechaLocalDate;
-    	for(String s : feriados) {
-    		fecha = s.split("/");
-    		fechaLocalDate = LocalDate.of(Integer.parseInt(fecha[2]), Integer.parseInt(fecha[1]), Integer.parseInt(fecha[0]));
-    		numeroDia = fechaLocalDate.getDayOfWeek().getValue();
+    	for(LocalDate l : feriados) {
+    		numeroDia = l.getDayOfWeek().getValue();
     		switch(numeroDia) {
     			case 1:
     			case 2:
@@ -126,6 +131,52 @@ public class MainController {
     	return feriadosDiaSemana;
     }
     
+    /**
+     * Genera un array con los nombres de los dia de semana del array 
+     * de feriados
+     * @param feriados. Array de feriados en formato LocalDate
+     * @return un array que contiene el nombre de los dias de semana
+     */
+    private ArrayList<String> getDias(ArrayList<LocalDate> feriados) {
+    	ArrayList<String> dias = new ArrayList<String>();
+    	int numeroDia;
+    	for(LocalDate l : feriados) {
+    		numeroDia = l.getDayOfWeek().getValue();
+    		switch(numeroDia) {
+    			case 1:
+    				dias.add("Lunes");
+    				break;
+    			case 2:
+    				dias.add("Martes");
+    				break;
+    			case 3:
+    				dias.add("Miércoles");
+    				break;
+    			case 4:
+    				dias.add("Jueves");
+    				break;
+    			case 5:
+    				dias.add("Viernes");
+    				break;
+    			case 6:
+    				dias.add("Sábado");
+    				break;
+    			case 7:
+    				dias.add("Domingo");
+    				break;
+    			default:
+    				break;
+    		}    			
+    	}
+    	return dias;
+    }    
+    
+    /**
+     * Función que calcula la cantidad de dias en un año quitando los sabados y domingo
+     * @param fechaInicio. Fecha inicial del rango
+     * @param fechaFinal. Fecha final del rango
+     * @return la cantidad de días en un año sin contar todos los sabados y domingo
+     */
     private int diasLaboralesSinFinde (LocalDate fechaInicio, LocalDate fechaFinal){
         Predicate<LocalDate> esFinde = date -> date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY;
         List<LocalDate> diasLaborales = fechaInicio.datesUntil(fechaFinal.plusDays(1))
