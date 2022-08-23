@@ -24,18 +24,25 @@
 package com.bi.desafioferiados;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.bi.desafioferiados.model.Anio;
 
 /**
  * Main controller
@@ -44,13 +51,28 @@ import org.springframework.web.bind.annotation.RestController;
 public class MainController {
         
     @GetMapping("/feriados")
-    public ArrayList<String> feriados(@RequestParam String anio) {
-    	return getFeriados(Integer.parseInt(anio));
+    public Anio feriados(@RequestParam String anio) {
+    	Anio year = new Anio();
+    	LocalDate fechaInicio = LocalDate.of(Integer.parseInt(anio), 1, 1);
+    	LocalDate fechaFinal = LocalDate.of(Integer.parseInt(anio), 12, 31);    	
+    	ArrayList<String> feriados = getFeriados(fechaInicio, fechaFinal); 
+//    	List<String> a = Arrays.asList(
+//    	                                            "09/08/2022", 
+//    	                                            "07/05/2022", 
+//    	                                            "30/03/2022", 
+//    	                                            "02/03/2022", 
+//    	                                            "10/02/2022"
+//    	                                          ); 
+//    	ArrayList<String> feriados = new ArrayList<String>(a);
+    	int feriadosDiaSemana = feriadosDiaSemana(feriados);
+    	int diasLaboralesSinFinde = diasLaboralesSinFinde(fechaInicio, fechaFinal);
+    	year.setFeriados(feriados);
+    	year.setFeriadosEnSemana(feriadosDiaSemana);
+    	year.setDiasLaborales(diasLaboralesSinFinde - feriadosDiaSemana);
+    	return year;
     }        
     
-    private ArrayList<String> getFeriados(int anio) {    	
-    	LocalDate fechaInicio = LocalDate.of(anio, 1, 1);
-    	LocalDate fechaFinal = LocalDate.of(anio, 12, 31);
+    private ArrayList<String> getFeriados(LocalDate fechaInicio, LocalDate fechaFinal) {    	
     	int rand = numRandom();    	
     	ArrayList<String> listaFeriados = new ArrayList<String>();
     	String feriado = "";
@@ -80,15 +102,36 @@ public class MainController {
     	return rand.nextInt((max - min) + 1) + min;    	    	
     }
     
-//    private void diaSemana() {
-//    	Calendar c = Calendar.getInstance(); 
-//    	try {
-//    		c.setTime(new SimpleDateFormat("dd/MM/yyyy").parse("20/08/2022"));    	
-//    	}catch(ParseException e) {
-//    		c.setTime(new Date());
-//    	}    	
-//    	int dayOfWeek = c.get(Calendar.DAY_OF_WEEK);
-//    	System.out.println(dayOfWeek);
-//    }
-//    
+    private int feriadosDiaSemana(ArrayList<String> feriados) {
+    	int feriadosDiaSemana = 0;
+    	int numeroDia;
+    	String[] fecha;
+    	LocalDate fechaLocalDate;
+    	for(String s : feriados) {
+    		fecha = s.split("/");
+    		fechaLocalDate = LocalDate.of(Integer.parseInt(fecha[2]), Integer.parseInt(fecha[1]), Integer.parseInt(fecha[0]));
+    		numeroDia = fechaLocalDate.getDayOfWeek().getValue();
+    		switch(numeroDia) {
+    			case 1:
+    			case 2:
+    			case 3:
+    			case 4:
+    			case 5:
+    				feriadosDiaSemana++;
+    				break;
+    			default:
+    				break;
+    		}    			
+    	}
+    	return feriadosDiaSemana;
+    }
+    
+    private int diasLaboralesSinFinde (LocalDate fechaInicio, LocalDate fechaFinal){
+        Predicate<LocalDate> esFinde = date -> date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY;
+        List<LocalDate> diasLaborales = fechaInicio.datesUntil(fechaFinal.plusDays(1))
+                .filter(esFinde.negate())
+                .collect(Collectors.toList());
+        return diasLaborales.size();    	               
+    }
+    
 }

@@ -5,6 +5,7 @@
 <body>
     <header th:replace="fragments/header :: header"></header>
     <div class="container">
+    	<h2>Inicio</h2>
 		<form class="row gx-3 gy-2 align-items-center">
 		  <div class="col-sm-3">
 		    <select th:onchange="feriados()"
@@ -20,38 +21,60 @@
 				<option value="2029">2029</option>
 				<option value="2030">2030</option>		
 		    </select>
-		  </div>
-		  <div class="col-auto">
-		    <button type="button" id="verFeriadosButton" disabled class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modal">Ver días feriados</button>
-		  </div>
-		  <div class="col-auto">
-		    <button type="submit" class="btn btn-secondary disabled">Calcular días hábiles</button>
-		  </div>		  
+		  </div>	  
 		</form>
     </div>    
     
-	<div class="modal fade" id="modal" tabindex="-1" aria-hidden="true">
-	  <div class="modal-dialog modal-lg">
-	    <div class="modal-content">
-	      <div class="modal-header">
-	        <h5 class="modal-title" id="modalTitle"></h5>
-	        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-	      </div>
-	      <div class="modal-body">
-			  <div class="row justify-content-evenly">
-			    <div class="col-md-4">
-				<ul id="listaFeriados" class="list-group">
-				</ul>				    			    
-			    </div>
-			    <div id="datepicker-div" class="col-md-4">
-			    </div>
-			  </div>	      
-	      </div>
-	      <div class="modal-footer">
-	        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-	      </div>
-	    </div>
-	  </div>
-	</div>    	   
+    <div class="container dias" id="panelContainer" style="display: none;">    	
+		<div class="accordion" id="accordionPanelsStayOpenExample">
+		  <div class="accordion-item">
+		    <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+		      <button id="buttonPanel" class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
+		      </button>
+		    </h2>
+		    <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+		      <div class="accordion-body">
+				  <div class="row justify-content-evenly">
+				    <div class="col-md-4">
+						<ul id="listaFeriados" class="list-group">
+						</ul>				    			    
+				    </div>
+				    <div class="col-md-4">
+  					    <div id="datepicker-div"></div>
+   				    	<h6 id="feriadosText"></h6>
+   				    	<h6 id="feriadosSemanaText"></h6>
+				    	<h6 id="habilesText"></h6>				 
+				    </div>				       
+				  </div>	      		        
+		      </div>
+		    </div>
+		  </div>
+		</div>
+  	</div>  
+    
+    
+<!-- 	<div class="modal fade" id="modal" tabindex="-1" aria-hidden="true"> -->
+<!-- 	  <div class="modal-dialog modal-lg"> -->
+<!-- 	    <div class="modal-content"> -->
+<!-- 	      <div class="modal-header"> -->
+<!-- 	        <h5 class="modal-title" id="modalTitle"></h5> -->
+<!-- 	        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+<!-- 	      </div> -->
+<!-- 	      <div class="modal-body"> -->
+<!-- 			  <div class="row justify-content-evenly"> -->
+<!-- 			    <div class="col-md-4"> -->
+<!-- 				<ul id="listaFeriados" class="list-group"> -->
+<!-- 				</ul>				    			     -->
+<!-- 			    </div> -->
+<!-- 			    <div id="datepicker-div" class="col-md-4"> -->
+<!-- 			    </div> -->
+<!-- 			  </div>	       -->
+<!-- 	      </div> -->
+<!-- 	      <div class="modal-footer"> -->
+<!-- 	        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button> -->
+<!-- 	      </div> -->
+<!-- 	    </div> -->
+<!-- 	  </div> -->
+<!-- 	</div>    	    -->
 </body>
 </html>
